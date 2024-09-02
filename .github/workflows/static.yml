@@ -34,7 +34,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: c:/artifact.tar
+          path: c:/temp/xdi_docs
           retention-days: 1
           if-no-files-found: error
       - name: Deploy to GitHub Pages
