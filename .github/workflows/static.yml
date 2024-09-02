@@ -34,7 +34,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: c:\temp\artifact
+          name: github-pages
+          path: c:\temp
           retention-days: 1
       - name: Deploy to GitHub Pages
         id: deployment
