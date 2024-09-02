@@ -29,6 +29,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: mylocalrunner
     steps:
+      - name: attempt rights fix
+        shell: cmd
+        run: cp --recursive --dereference --no-preserve=mode,ownership c:/temp/index.html c:/temp/xdi_docs
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact to GitHub
