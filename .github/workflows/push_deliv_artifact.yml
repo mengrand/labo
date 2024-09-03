@@ -1,0 +1,14 @@
+name: delivery automation production build
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: mylocalrunner
+    steps:
+      - name: upload deliveries
+        uses: actions/upload-artifact@v4
+        with:
+          name: deliveries
+          path: C:\temp\e964dd50a704970b84ebe340115900e385f510fe\*.pck
