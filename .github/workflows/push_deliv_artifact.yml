@@ -12,7 +12,7 @@ jobs:
         with:
           name: packages
           path: C:\temp\e964dd50a704970b84ebe340115900e385f510fe\*.pck
-  build pages:
+  build-pages:
     uses: ./.github/workflows/static.yml
     with:
       build_workflow_run_id: ${{ github.run_id }}
