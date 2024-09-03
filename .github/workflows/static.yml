@@ -37,5 +37,64 @@ jobs:
       - name: build docs
         shell: bash
         run: |
-            ls -R
-            pwd
+            src_pck_path=`pwd`
+            dst_doc_path=`pwd`/xdi_docs
+            mkdir -p ${dst_doc_path}
+            cd ${dst_doc_path}
+            cat << EOF > index.html
+            <html xmlns:mdv="java:com.indy.xsl.global.Variables" xmlns:mds="java:com.indy.xsl.global.Strings" xmlns:ex="http://www.stambia.com/externalize" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:UUID="java.util.UUID" xmlns:cache="java:com.indy.emf.uri.CacheImpl" xmlns="http://www.w3.org/1999/xhtml" xmlns:proc="http://www.example.org/proc" xmlns:map="http://www.indy.com/v2/map" xmlns:wbi="java:com.indy.xsl.global.WorkbenchInvocation">
+               <head>
+                  <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
+                  <title>Index</title>
+                  <link rel="shortcut icon" href="images/Logo16x16.png" type="image/x-icon"></link>
+                  <link rel="icon" href="images/Logo16x16.png" type="image/x-icon"></link>
+                  <link rel="StyleSheet" href="css/layout1.css"></link>
+               </head>
+               <body>
+                  <div id="Header">
+                  </div>
+                  <div id="Title">
+                     <h1><img src="images/32/Logo32x32.png"></img>&nbsp;&nbsp;Menu
+                     </h1>
+                  </div>
+                  <div id="Content_Without_Menu">
+                     <h2 xmlns="">Process</h2>
+                     <table xmlns="">
+                        <tr>
+                           <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        </tr>
+            EOF
+            for fname in `ls ${src_pck_path}/*.pck`;
+            do
+                echo processing package file : ${fname} ...
+                pckname=`basename ${fname} .pck`
+                echo extracting html documentation to ${dst_doc_path}/${pckname} ...
+                rm -rf ___internal___
+                unzip -qq "${fname}" "___internal___/doc/*/html/*"
+                id=`ls ___internal___/doc/` 
+                rm -rf ${pckname}
+                mv ___internal___/doc/${id}/html ${pckname}
+                echo done
+                cat << EOF >> index.html
+            <tr><td><img src="images/ActionProcess.png"><a href="./${pckname}/index.html">${pckname}</a></td></tr>
+            EOF
+            done;
+            cat << EOF >> index.html
+                     </table><br xmlns=""></div>
+               </body>
+            </html>
+            EOF
+            rm -rf ___internal___
+            tar -cf ${src_pck_path}/artifact.tar --directory=${dst_pck_path} *
+            echo artifact_filename=${src_pck_path}/artifact.tar>> $GITHUB_ENV
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-pages
+          path: artifact.tar
+          retention-days: 1
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
