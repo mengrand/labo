@@ -88,6 +88,7 @@ jobs:
             mkdir ${dst_doc_path}/css
             find ${src_pck_path} -type f -ipath "*/css/layout1.css" -exec cp {} ${dst_doc_path}/css/layout1.css \; -quit
             mkdir ${dst_doc_path}/images
+            mkdir ${dst_doc_path}/images/32
             find ${src_pck_path} -type f -ipath "*/images/Logo16x16.png" -exec cp {} ${dst_doc_path}/images/Logo16x16.png \; -quit
             find ${src_pck_path} -type f -ipath "*/images/32/Logo32x32.png" -exec cp {} ${dst_doc_path}/images/32/Logo32x32.png \; -quit
             find ${src_pck_path} -type f -ipath "*/images/ActionProcess.png" -exec cp {} ${dst_doc_path}/images/ActionProcess.png \; -quit
