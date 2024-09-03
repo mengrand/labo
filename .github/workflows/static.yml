@@ -1,12 +1,10 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
-
+name: deploy pages
 on:
-  workflow_run:
-    workflows: [ 'delivery automation production build' ]
-    types: [ completed ]
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      build_workflow_run_id:
+        required: true
+        type: string
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -14,90 +12,83 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: download package artifact
         uses: actions/download-artifact@v4
         with:
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ inputs.build_workflow_run_id }}
           github-token: ${{ github.token }}
-          name: deliveries
-      - name: build docs
+          name: packages
+      - name: build index.html and create artifact.tar
         shell: bash
         run: |
-            src_pck_path=`pwd`
-            dst_doc_path=`pwd`/xdi_docs
-            mkdir -p ${dst_doc_path}
-            cd ${dst_doc_path}
-            cat << EOF > index.html
-            <html xmlns:mdv="java:com.indy.xsl.global.Variables" xmlns:mds="java:com.indy.xsl.global.Strings" xmlns:ex="http://www.stambia.com/externalize" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:UUID="java.util.UUID" xmlns:cache="java:com.indy.emf.uri.CacheImpl" xmlns="http://www.w3.org/1999/xhtml" xmlns:proc="http://www.example.org/proc" xmlns:map="http://www.indy.com/v2/map" xmlns:wbi="java:com.indy.xsl.global.WorkbenchInvocation">
-               <head>
-                  <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
-                  <title>Index</title>
-                  <link rel="shortcut icon" href="images/Logo16x16.png" type="image/x-icon"></link>
-                  <link rel="icon" href="images/Logo16x16.png" type="image/x-icon"></link>
-                  <link rel="StyleSheet" href="css/layout1.css"></link>
-               </head>
-               <body>
-                  <div id="Header">
-                  </div>
-                  <div id="Title">
-                     <h1><img src="images/32/Logo32x32.png"></img>&nbsp;&nbsp;Menu
-                     </h1>
-                  </div>
-                  <div id="Content_Without_Menu">
-                     <h2 xmlns="">Process</h2>
-                     <table xmlns="">
-                        <tr>
-                           <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        </tr>
-            EOF
-            for fname in `ls ${src_pck_path}/*.pck`;
-            do
-                echo processing package file : ${fname} ...
-                pckname=`basename ${fname} .pck`
-                echo extracting html documentation to ${dst_doc_path}/${pckname} ...
-                rm -rf ___internal___
-                unzip -qq "${fname}" "___internal___/doc/*/html/*"
-                id=`ls ___internal___/doc/` 
-                rm -rf ${pckname}
-                mv ___internal___/doc/${id}/html ${pckname}
-                echo done
-                cat << EOF >> index.html
-            <tr><td><img src="images/ActionProcess.png"><a href="./${pckname}/index.html">${pckname}</a></td></tr>
-            EOF
-            done;
-            cat << EOF >> index.html
-                     </table><br xmlns=""></div>
-               </body>
-            </html>
-            EOF
-            rm -rf ___internal___
-            mkdir ${dst_doc_path}/css
-            find ${src_pck_path} -type f -ipath "*/css/layout1.css" -exec cp {} ${dst_doc_path}/css/layout1.css \; -quit
-            mkdir ${dst_doc_path}/images
-            mkdir ${dst_doc_path}/images/32
-            find ${src_pck_path} -type f -ipath "*/images/Logo16x16.png" -exec cp {} ${dst_doc_path}/images/Logo16x16.png \; -quit
-            find ${src_pck_path} -type f -ipath "*/images/32/Logo32x32.png" -exec cp {} ${dst_doc_path}/images/32/Logo32x32.png \; -quit
-            find ${src_pck_path} -type f -ipath "*/images/ActionProcess.png" -exec cp {} ${dst_doc_path}/images/ActionProcess.png \; -quit
-            tar -cf ${src_pck_path}/artifact.tar --directory=${dst_doc_path} *
-            echo artifact_filename=${src_pck_path}/artifact.tar>> $GITHUB_ENV
+          src_pck_path=`pwd`
+          dst_doc_path=`pwd`/xdi_docs
+          mkdir -p ${dst_doc_path}
+          cd ${dst_doc_path}
+          cat << EOF > index.html
+          <html xmlns:mdv="java:com.indy.xsl.global.Variables" xmlns:mds="java:com.indy.xsl.global.Strings" xmlns:ex="http://www.stambia.com/externalize" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:UUID="java.util.UUID" xmlns:cache="java:com.indy.emf.uri.CacheImpl" xmlns="http://www.w3.org/1999/xhtml" xmlns:proc="http://www.example.org/proc" xmlns:map="http://www.indy.com/v2/map" xmlns:wbi="java:com.indy.xsl.global.WorkbenchInvocation">
+             <head>
+                <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
+                <title>Index</title>
+                <link rel="shortcut icon" href="images/Logo16x16.png" type="image/x-icon"></link>
+                <link rel="icon" href="images/Logo16x16.png" type="image/x-icon"></link>
+                <link rel="StyleSheet" href="css/layout1.css"></link>
+             </head>
+             <body>
+                <div id="Header">
+                </div>
+                <div id="Title">
+                   <h1><img src="images/32/Logo32x32.png"></img>&nbsp;&nbsp;Menu
+                   </h1>
+                </div>
+                <div id="Content_Without_Menu">
+                   <h2 xmlns="">Process</h2>
+                   <table xmlns="">
+                      <tr>
+                         <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                      </tr>
+          EOF
+          for fname in `ls ${src_pck_path}/*.pck`;
+          do
+              echo processing package file : ${fname} ...
+              pckname=`basename ${fname} .pck`
+              echo extracting html documentation to ${dst_doc_path}/${pckname} ...
+              rm -rf ___internal___
+              unzip -qq "${fname}" "___internal___/doc/*/html/*"
+              id=`ls ___internal___/doc/` 
+              rm -rf ${pckname}
+              mv ___internal___/doc/${id}/html ${pckname}
+              echo done
+              cat << EOF >> index.html
+          <tr><td><img src="images/ActionProcess.png"><a href="./${pckname}/index.html">${pckname}</a></td></tr>
+          EOF
+          done;
+          cat << EOF >> index.html
+                   </table><br xmlns=""></div>
+             </body>
+          </html>
+          EOF
+          rm -rf ___internal___
+          mkdir ${dst_doc_path}/css
+          find ${src_pck_path} -type f -ipath "*/css/layout1.css" -exec cp {} ${dst_doc_path}/css/layout1.css \; -quit
+          mkdir ${dst_doc_path}/images
+          mkdir ${dst_doc_path}/images/32
+          find ${src_pck_path} -type f -ipath "*/images/Logo16x16.png" -exec cp {} ${dst_doc_path}/images/Logo16x16.png \; -quit
+          find ${src_pck_path} -type f -ipath "*/images/32/Logo32x32.png" -exec cp {} ${dst_doc_path}/images/32/Logo32x32.png \; -quit
+          find ${src_pck_path} -type f -ipath "*/images/ActionProcess.png" -exec cp {} ${dst_doc_path}/images/ActionProcess.png \; -quit
+          tar -cf ${src_pck_path}/artifact.tar --directory=${dst_doc_path} *
+          echo artifact_filename=${src_pck_path}/artifact.tar>> $GITHUB_ENV
       - name: display env
         shell: bash
         run:
-            echo $GITHUB_ENV
+          echo $GITHUB_ENV
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
@@ -105,7 +96,7 @@ jobs:
         with:
           name: github-pages
           path: artifact.tar
-          retention-days: 1
+          retention-days: 10
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

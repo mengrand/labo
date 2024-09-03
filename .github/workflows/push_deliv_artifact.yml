@@ -12,3 +12,7 @@ jobs:
         with:
           name: deliveries
           path: C:\temp\e964dd50a704970b84ebe340115900e385f510fe\*.pck
+  call-workflow-deploy-pages:
+    uses: ./.github/workflows/static.yml@main
+    with:
+      build_workflow_run_id: ${{ github.run_id }}
