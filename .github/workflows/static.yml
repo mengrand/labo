@@ -85,8 +85,12 @@ jobs:
             </html>
             EOF
             rm -rf ___internal___
-            tar -cf ${src_pck_path}/artifact.tar --directory=${dst_pck_path} *
+            tar -cf ${src_pck_path}/artifact.tar --directory=${dst_doc_path} *
             echo artifact_filename=${src_pck_path}/artifact.tar>> $GITHUB_ENV
+      - name: display env
+        shell: bash
+        run:
+            echo $GITHUB_ENV
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
