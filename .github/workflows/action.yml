@@ -22,4 +22,5 @@ jobs:
             - name: step
               shell: bash
               run: |
-                echo `pwd`            
+                echo `pwd`
+                ls -la
