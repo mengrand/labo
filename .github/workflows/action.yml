@@ -8,7 +8,7 @@ jobs:
     test-job:
         runs-on: ubuntu-latest
         container:
-            image: ghcr.io/mengrand/my-ubuntu:latest
+            image: ghcr.io/mengrand/docker-xdi-build:latest
             credentials:
                username: mengrand
                password: ${{  secrets.DOCKER_CONTAINER_REGISTRY_TOKEN }}
@@ -25,4 +25,5 @@ jobs:
                 echo `pwd`
                 ls -la
                 uname -r
+                ls /opt
                 java -version
