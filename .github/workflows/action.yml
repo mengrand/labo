@@ -6,7 +6,7 @@ on:
 
 jobs:
     test-job:
-        runs-on: ubuntu-18.04
+        runs-on: ubuntu-latest
         container:
             image: ghcr.io/mengrand/my-ubuntu:latest
             credentials:
