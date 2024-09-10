@@ -1,0 +1,19 @@
+# Action name
+name: Action
+
+on:
+    push
+
+jobs:
+    test-job:
+        runs-on: ubuntu-18.04
+        container:
+            image: ghcr.io/mengrand/my-ubuntu:latest
+            credentials:
+               username: mengrand
+               password: ${{  secrets.DOCKER_CONTAINER_REGISTRY_TOKEN }}
+        steps:
+            - name: step
+              shell: bash
+              run: |
+                echo "-- Test IT --"
