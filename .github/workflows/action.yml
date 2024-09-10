@@ -17,3 +17,9 @@ jobs:
               shell: bash
               run: |
                 echo "-- Test IT --"
+            - name: checkout project
+              uses: actions/checkout@v4
+            - name: step
+              shell: bash
+              run: |
+                echo `pwd`            
